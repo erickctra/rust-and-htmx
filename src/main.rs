@@ -1,8 +1,21 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use lazy_static::lazy_static;
+use tera::Tera;
+
+lazy_static! {
+    pub static ref TEMPLATES: Tera = {
+        let source = "templates/**/*";
+        let tera = Tera::new(source).unwrap();
+        tera
+    };
+}
+
 
 #[get("/")]
 async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello World")
+    let context = tera::Context::new();
+    let page_content = TEMPLATES.render("index.html", &context).unwrap();
+    HttpResponse::Ok().body(page_content)
 }
 
 #[post("/echo")]
